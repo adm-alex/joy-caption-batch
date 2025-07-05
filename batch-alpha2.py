@@ -146,13 +146,7 @@ parser.add_argument(
     help=f"JSON file containing prompts to use. Default: '{PROMPT_FILE}'.",
 )
 
-# New optional argument for image_seq_length
-parser.add_argument(
-    "--image-seq-length",
-    type=int,
-    default=1,
-    help="Number of image tokens to insert per image token in the prompt. Default is 1.",
-)
+# Note: image_seq_length is automatically determined from the model configuration
 
 # Other optional parameters with default values
 parser.add_argument(
@@ -197,7 +191,7 @@ parser.add_argument(
 parser.add_argument(
     "--model",
     type=str,
-    default="fancyfeast/llama-joycaption-alpha-two-hf-llava",
+    default="fancyfeast/llama-joycaption-beta-one-hf-llava",
     help="Model to use.",
 )
 parser.add_argument(
@@ -348,7 +342,7 @@ def main():
     assert isinstance(llava_model, LlavaForConditionalGeneration)
 
     # Log image_seq_length for debugging
-    logging.debug(f"Image sequence length: {args.image_seq_length}")
+    logging.debug(f"Image sequence length: {llava_model.config.image_seq_length}")
 
     # Use args.batch_processing_count or BATCH_PROCESSING_COUNT
     batch_processing_count = args.batch_processing_count or BATCH_PROCESSING_COUNT
@@ -358,7 +352,7 @@ def main():
         image_paths,
         tokenizer,
         llava_model.config.image_token_index,
-        args.image_seq_length,  # Use the provided image_seq_length
+        llava_model.config.image_seq_length,  # Use the model's image_seq_length
     )
     dataloader = DataLoader(
         dataset,
